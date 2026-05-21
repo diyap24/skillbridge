@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillBridge.API", "SkillBridge.API\SkillBridge.API.csproj", "{956112D0-D768-49C1-A3C0-4687C8549175}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillBridge.Core", "SkillBridge.Core\SkillBridge.Core.csproj", "{085BC8CB-A165-4BD7-BDB8-2C9D787664E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillBridge.Infrastructure", "SkillBridge.Infrastructure\SkillBridge.Infrastructure.csproj", "{402333CE-BBA3-448F-8BFC-854593AFBB55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillBridge.Tests", "SkillBridge.Tests\SkillBridge.Tests.csproj", "{7BAFEBB6-AE74-47DF-BDA0-4DAA4602D2F5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{956112D0-D768-49C1-A3C0-4687C8549175}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{956112D0-D768-49C1-A3C0-4687C8549175}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{956112D0-D768-49C1-A3C0-4687C8549175}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{956112D0-D768-49C1-A3C0-4687C8549175}.Release|Any CPU.Build.0 = Release|Any CPU
+		{085BC8CB-A165-4BD7-BDB8-2C9D787664E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{085BC8CB-A165-4BD7-BDB8-2C9D787664E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{085BC8CB-A165-4BD7-BDB8-2C9D787664E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{085BC8CB-A165-4BD7-BDB8-2C9D787664E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{402333CE-BBA3-448F-8BFC-854593AFBB55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{402333CE-BBA3-448F-8BFC-854593AFBB55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{402333CE-BBA3-448F-8BFC-854593AFBB55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{402333CE-BBA3-448F-8BFC-854593AFBB55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BAFEBB6-AE74-47DF-BDA0-4DAA4602D2F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BAFEBB6-AE74-47DF-BDA0-4DAA4602D2F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BAFEBB6-AE74-47DF-BDA0-4DAA4602D2F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BAFEBB6-AE74-47DF-BDA0-4DAA4602D2F5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
