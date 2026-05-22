@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  backend:
+    name: .NET build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore packages
+        run: dotnet restore
+        working-directory: backend
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+        working-directory: backend
+
+      - name: Run tests
+        run: dotnet test --no-build --configuration Release --verbosity normal
+        working-directory: backend
+        env:
+          Jwt__Secret: ci-test-secret-key-minimum-32-characters-long!
+          Jwt__Issuer: skillbridge-api
+          Jwt__Audience: skillbridge-app
+          Jwt__AccessTokenExpiryMinutes: "15"
+          Jwt__RefreshTokenExpiryDays: "7"
+
+  frontend:
+    name: Next.js lint and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Lint
+        run: npm run lint
+        working-directory: frontend
+
+      - name: Build
+        run: npm run build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:5000/api
