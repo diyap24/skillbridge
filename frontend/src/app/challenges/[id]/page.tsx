@@ -35,72 +35,141 @@ export default function ChallengePage({ params }: { params: Promise<{ id: string
     onError: () => { router.push('/login'); },
   });
 
-  if (isLoading) {
-    return <div className="flex items-center justify-center h-screen text-slate-400">Loading...</div>;
-  }
-
-  if (!challenge) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen gap-4">
-        <p className="text-slate-500">Challenge not found.</p>
-        <Link href="/challenges" className="text-blue-600 text-sm">Back to challenges</Link>
+  if (isLoading) return (
+    <div className="flex items-center justify-center h-screen bg-void">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-2 border-royal border-t-mauve rounded-full animate-spin" />
+        <p className="text-blush/50 text-sm">Loading challenge...</p>
       </div>
-    );
-  }
+    </div>
+  );
+
+  if (!challenge) return (
+    <div className="flex flex-col items-center justify-center h-screen bg-void gap-4">
+      <p className="text-blush/50">Challenge not found.</p>
+      <Link href="/challenges" className="btn-ghost text-sm">Back to challenges</Link>
+    </div>
+  );
 
   return (
-    <div className="h-[calc(100vh-57px)] flex flex-col">
-      <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-slate-200">
+    <div className="h-screen flex flex-col bg-void">
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-5 py-3 glass-dark border-b border-royal/20 z-10">
         <div className="flex items-center gap-3">
-          <Link href="/challenges" className="text-slate-400 hover:text-slate-600 text-sm">Back</Link>
-          <span className="font-semibold text-slate-900 text-sm">{challenge.title}</span>
-          <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{challenge.difficulty}</span>
+          <Link href="/challenges"
+            className="text-blush/40 hover:text-blush transition-colors duration-200 text-sm">
+            ← Back
+          </Link>
+          <span className="text-royal/40">|</span>
+          <span className="font-bold text-cream text-sm">{challenge.title}</span>
+          <span className="text-xs bg-royal/20 text-blush/70 px-2.5 py-1 rounded-full border border-royal/30">
+            {challenge.difficulty}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           {LANGUAGES.map((lang) => (
             <button key={lang}
               onClick={() => { setLanguage(lang); setCode(STARTER[lang]); }}
-              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${language === lang ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200
+                ${language === lang
+                  ? 'bg-gradient-to-r from-royal to-mauve text-cream shadow-lg shadow-royal/30'
+                  : 'bg-royal/15 text-blush/60 hover:bg-royal/25 hover:text-blush'}`}>
               {lang}
             </button>
           ))}
           <button onClick={() => submit.mutate()} disabled={submit.isPending}
-            className="ml-2 bg-green-600 text-white text-sm px-5 py-1.5 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50">
-            {submit.isPending ? 'Running...' : 'Submit'}
+            className="ml-2 btn-primary text-sm px-5 py-2">
+            {submit.isPending ? (
+              <span className="flex items-center gap-2">
+                <span className="w-3.5 h-3.5 border-2 border-cream/20 border-t-cream rounded-full animate-spin" />
+                Running...
+              </span>
+            ) : 'Submit →'}
           </button>
         </div>
       </div>
+
+      {/* Main split */}
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-2/5 overflow-y-auto p-6 border-r border-slate-200 bg-white">
-          <h2 className="text-lg font-semibold text-slate-900 mb-1">{challenge.skillName}</h2>
-          <div className="flex gap-3 text-xs text-slate-500 mb-4">
-            <span>Pass: {challenge.passScore}%</span>
-            <span>Time: {Math.round(challenge.timeLimitSeconds / 60)} min</span>
+
+        {/* Left panel */}
+        <div className="w-2/5 overflow-y-auto p-7 border-r border-royal/15 glass-dark">
+          <div className="mb-6">
+            <p className="text-xs text-mauve font-semibold uppercase tracking-widest mb-1">
+              {challenge.skillName}
+            </p>
+            <div className="flex gap-4 text-xs text-blush/30 mb-4">
+              <span>Pass: {challenge.passScore}%</span>
+              <span>Time: {Math.round(challenge.timeLimitSeconds / 60)} min</span>
+            </div>
+            <p className="text-sm text-blush/60 leading-relaxed whitespace-pre-wrap">
+              {challenge.description}
+            </p>
           </div>
-          <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{challenge.description}</p>
+
           {result && (
-            <div className={`rounded-xl border p-4 mt-4 ${result.status === 'Passed' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-              <p className={`text-sm font-semibold mb-2 ${result.status === 'Passed' ? 'text-green-700' : 'text-red-700'}`}>
-                {result.status === 'Passed' ? 'Passed' : 'Failed'} Score: {result.score}%
-              </p>
+            <div className={`rounded-2xl border p-5 animate-fade-up
+              ${result.status === 'Passed'
+                ? 'bg-mauve/10 border-mauve/25'
+                : 'bg-deep/40 border-royal/25'}`}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className={`text-2xl`}>
+                  {result.status === 'Passed' ? '✅' : '❌'}
+                </span>
+                <div>
+                  <p className={`font-bold text-sm
+                    ${result.status === 'Passed' ? 'text-blush' : 'text-blush/60'}`}>
+                    {result.status === 'Passed' ? 'Passed!' : 'Failed'}
+                  </p>
+                  <p className="text-xs text-blush/30">Score: {result.score}%</p>
+                </div>
+              </div>
               {result.credentialIssued && (
-                <p className="text-blue-700 text-xs font-medium mb-2">Credential issued! Check dashboard.</p>
+                <div className="bg-royal/20 border border-royal/30 rounded-xl p-3 mb-3">
+                  <p className="text-blush text-xs font-semibold">
+                    🏅 Credential issued! Check your dashboard.
+                  </p>
+                </div>
               )}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 {result.testCases.map((tc, i) => (
-                  <div key={i} className={`text-xs px-2 py-1 rounded ${tc.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    Test {i + 1}: {tc.passed ? 'Pass' : 'Fail'}
+                  <div key={i}
+                    className={`flex items-center gap-2 text-xs px-3 py-2 rounded-lg
+                      ${tc.passed
+                        ? 'bg-mauve/10 text-blush/70'
+                        : 'bg-deep/50 text-blush/40'}`}>
+                    <span>{tc.passed ? '✓' : '✗'}</span>
+                    <span>Test {i + 1}: {tc.passed ? 'Pass' : 'Fail'}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
         </div>
+
+        {/* Editor */}
         <div className="flex-1 overflow-hidden">
-          <Editor height="100%" language={language} value={code}
-            onChange={(v) => setCode(v || '')} theme="vs-dark"
-            options={{ minimap: { enabled: false }, fontSize: 14, automaticLayout: true, padding: { top: 16 } }} />
+          <Editor
+            height="100%"
+            language={language}
+            value={code}
+            onChange={(v) => setCode(v || '')}
+            theme="vs-dark"
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              lineNumbers: 'on',
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              padding: { top: 20, bottom: 20 },
+              fontFamily: 'JetBrains Mono, Fira Code, monospace',
+              cursorBlinking: 'smooth',
+              smoothScrolling: true,
+              renderLineHighlight: 'gutter',
+            }}
+          />
         </div>
+
       </div>
     </div>
   );

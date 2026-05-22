@@ -11,9 +11,7 @@ export default function DashboardPage() {
   const { user, isAuthenticated } = useAuthStore();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!isAuthenticated) router.push('/login');
-  }, [isAuthenticated, router]);
+  useEffect(() => { if (!isAuthenticated) router.push('/login'); }, [isAuthenticated, router]);
 
   const { data: credentials = [], isLoading } = useQuery<Credential[]>({
     queryKey: ['credentials'],
@@ -23,124 +21,112 @@ export default function DashboardPage() {
 
   if (!isAuthenticated) return null;
 
+  const stats = [
+    { label: 'Credentials',    value: credentials.length,                                                         gradient: 'from-royal to-mauve' },
+    { label: 'Active badges',  value: credentials.filter((c) => !c.isRevoked).length,                             gradient: 'from-mauve to-blush' },
+    { label: 'Skills verified', value: new Set(credentials.map((c) => c.skillName)).size,                         gradient: 'from-deep to-royal' },
+    { label: 'Avg score',       value: credentials.length > 0 ? Math.round(credentials.reduce((s,c) => s+c.scorePercentile,0)/credentials.length)+'%' : '—', gradient: 'from-royal to-mauve' },
+  ];
+
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
+    <div className="min-h-screen bg-void pt-28 pb-20 px-6 relative overflow-hidden">
+      <div className="orb w-[500px] h-[500px] bg-royal/10 top-0 right-[-100px]" />
+      <div className="orb w-96 h-96 bg-deep/30 bottom-0 left-[-50px]" />
 
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">
-          Welcome, {user?.fullName?.split(' ')[0]} 👋
-        </h1>
-        <p className="text-slate-500 text-sm mt-1">
-          {user?.role} · {user?.email}
-        </p>
-      </div>
+      <div className="relative z-10 max-w-5xl mx-auto">
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {[
-          {
-            label: 'Credentials earned',
-            value: credentials.length,
-            color: 'text-blue-600',
-          },
-          {
-            label: 'Active badges',
-            value: credentials.filter((c) => !c.isRevoked).length,
-            color: 'text-green-600',
-          },
-          {
-            label: 'Skills verified',
-            value: new Set(credentials.map((c) => c.skillName)).size,
-            color: 'text-purple-600',
-          },
-          {
-            label: 'Avg score',
-            value:
-              credentials.length > 0
-                ? Math.round(
-                    credentials.reduce(
-                      (sum, c) => sum + c.scorePercentile,
-                      0
-                    ) / credentials.length
-                  ) + '%'
-                : '—',
-            color: 'text-orange-600',
-          },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white border border-slate-200 rounded-xl p-4">
-            <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            <p className="text-xs text-slate-500 mt-1">{stat.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Credentials table */}
-      <div className="bg-white border border-slate-200 rounded-xl">
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="font-semibold text-slate-900">Your Credentials</h2>
-          <Link
-            href="/challenges"
-            className="text-sm text-blue-600 hover:underline font-medium">
-            Earn more →
-          </Link>
+        {/* Header */}
+        <div className="mb-10 animate-fade-up">
+          <p className="text-mauve text-xs font-semibold uppercase tracking-widest mb-2">
+            Your workspace
+          </p>
+          <h1 className="text-4xl font-black text-cream mb-1">
+            Welcome back, {user?.fullName?.split(' ')[0]} 👋
+          </h1>
+          <p className="text-blush/40 text-sm">{user?.role} · {user?.email}</p>
         </div>
 
-        {isLoading && (
-          <div className="p-8 text-center text-slate-400 text-sm">
-            Loading credentials…
-          </div>
-        )}
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {stats.map((s, i) => (
+            <div key={s.label}
+              className="glass rounded-2xl p-5 animate-fade-up"
+              style={{ animationDelay: `${i * 0.07}s` }}>
+              <p className={`text-3xl font-black bg-gradient-to-br ${s.gradient}
+                             bg-clip-text text-transparent mb-1`}>
+                {s.value}
+              </p>
+              <p className="text-blush/40 text-xs font-medium">{s.label}</p>
+            </div>
+          ))}
+        </div>
 
-        {!isLoading && credentials.length === 0 && (
-          <div className="p-12 text-center">
-            <p className="text-slate-400 text-sm mb-4">No credentials yet</p>
-            <Link
-              href="/challenges"
-              className="bg-blue-600 text-white text-sm px-5 py-2 rounded-lg
-                         hover:bg-blue-700 transition-colors">
-              Take your first challenge
+        {/* Credentials */}
+        <div className="glass rounded-3xl overflow-hidden animate-fade-up shadow-2xl shadow-void/40"
+             style={{ animationDelay: '0.28s' }}>
+
+          <div className="px-7 py-5 border-b border-royal/15 flex items-center justify-between">
+            <div>
+              <h2 className="font-bold text-cream text-lg">Your Credentials</h2>
+              <p className="text-blush/40 text-xs mt-0.5">Verified badges earned from challenges</p>
+            </div>
+            <Link href="/challenges"
+              className="text-sm text-mauve hover:text-blush font-semibold
+                         transition-colors duration-200 flex items-center gap-1">
+              Earn more <span>→</span>
             </Link>
           </div>
-        )}
 
-        {credentials.length > 0 && (
-          <div className="divide-y divide-slate-100">
-            {credentials.map((cred) => (
-              <div
-                key={cred.id}
-                className="px-5 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-10 h-10 bg-blue-100 rounded-full flex items-center
-                                justify-center text-blue-700 font-bold text-sm">
-                    {cred.scorePercentile}
+          {isLoading && (
+            <div className="p-10 text-center text-blush/30 text-sm">Loading credentials...</div>
+          )}
+
+          {!isLoading && credentials.length === 0 && (
+            <div className="p-16 text-center">
+              <div className="text-6xl mb-5 animate-float inline-block">🏅</div>
+              <p className="text-blush/40 text-sm mb-6">
+                No credentials yet. Take a challenge to earn your first badge.
+              </p>
+              <Link href="/challenges" className="btn-primary text-sm px-6 py-3">
+                Take your first challenge →
+              </Link>
+            </div>
+          )}
+
+          {credentials.length > 0 && (
+            <div className="divide-y divide-royal/10">
+              {credentials.map((cred, i) => (
+                <div key={cred.id}
+                  className="px-7 py-4 flex items-center justify-between
+                             hover:bg-royal/10 transition-colors duration-200
+                             animate-slide-in"
+                  style={{ animationDelay: `${i * 0.05}s` }}>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-royal to-mauve
+                                    flex items-center justify-center text-cream font-black text-sm
+                                    shadow-lg shadow-royal/30 flex-shrink-0">
+                      {cred.scorePercentile}%
+                    </div>
+                    <div>
+                      <p className="font-semibold text-cream text-sm">{cred.skillName}</p>
+                      <p className="text-xs text-blush/30 mt-0.5">
+                        {cred.skillCategory} · Issued {new Date(cred.issuedAt).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-slate-900 text-sm">
-                      {cred.skillName}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {cred.skillCategory} ·{' '}
-                      {new Date(cred.issuedAt).toLocaleDateString()}
-                    </p>
-                  </div>
+                  <Link href={`/verify/${cred.publicToken}`} target="_blank"
+                    className="text-xs border border-royal/30 text-blush/60 px-4 py-2 rounded-xl
+                               hover:bg-royal/20 hover:border-mauve/40 hover:text-blush
+                               transition-all duration-200 font-medium flex-shrink-0">
+                    View Badge →
+                  </Link>
                 </div>
-                <Link
-                  href={`/verify/${cred.publicToken}`}
-                  target="_blank"
-                  className="text-xs text-blue-600 border border-blue-200 px-3 py-1.5
-                             rounded-lg hover:bg-blue-50 transition-colors font-medium">
-                  View Badge →
-                </Link>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
 
+        </div>
+      </div>
     </div>
   );
 }
