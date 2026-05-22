@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
@@ -17,19 +17,20 @@ const STARTER: Record<Language, string> = {
   java: '// Write your solution here\n',
 };
 
-export default function ChallengePage({ params }: { params: { id: string } }) {
+export default function ChallengePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const [language, setLanguage] = useState<Language>('python');
   const [code, setCode] = useState(STARTER.python);
   const [result, setResult] = useState<SubmissionResult | null>(null);
 
   const { data: challenge, isLoading } = useQuery<ChallengeDetail>({
-    queryKey: ['challenge', params.id],
-    queryFn: () => api.get(`/challenges/${params.id}`).then((r) => r.data),
+    queryKey: ['challenge', id],
+    queryFn: () => api.get(`/challenges/${id}`).then((r) => r.data),
   });
 
   const submit = useMutation({
-    mutationFn: () => api.post(`/challenges/${params.id}/submit`, { code, language }),
+    mutationFn: () => api.post(`/challenges/${id}/submit`, { code, language }),
     onSuccess: (res) => setResult(res.data),
     onError: () => { router.push('/login'); },
   });
@@ -59,7 +60,7 @@ export default function ChallengePage({ params }: { params: { id: string } }) {
           {LANGUAGES.map((lang) => (
             <button key={lang}
               onClick={() => { setLanguage(lang); setCode(STARTER[lang]); }}
-              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${language === lang ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${language === lang ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
               {lang}
             </button>
           ))}

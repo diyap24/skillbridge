@@ -1,5 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
 
 namespace SkillBridge.Core.Models;
 
@@ -9,9 +10,15 @@ public class CodeSubmission
     [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; }
 
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid AttemptId { get; set; }
+
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid UserId { get; set; }
+
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid ChallengeId { get; set; }
+
     public string Language { get; set; } = string.Empty;
     public string SourceCode { get; set; } = string.Empty;
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;

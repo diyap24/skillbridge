@@ -29,7 +29,7 @@ public class ChallengesController(IChallengeService challengeService) : Controll
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Employer")]
+    [Authorize]
     public async Task<IActionResult> Create([FromBody] CreateChallengeDto dto)
     {
         var challenge = await challengeService.CreateAsync(dto, User.GetUserId());
@@ -37,7 +37,7 @@ public class ChallengesController(IChallengeService challengeService) : Controll
     }
 
     [HttpPost("{id:guid}/submit")]
-    [Authorize(Roles = "Candidate")]
+    [Authorize]
     public async Task<IActionResult> Submit(Guid id, [FromBody] SubmitCodeDto dto)
     {
         try
