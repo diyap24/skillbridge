@@ -33,9 +33,8 @@ export default function RegisterPage() {
       const res = await api.post('/auth/register', data);
       setAuth(res.data.user, res.data.accessToken, res.data.refreshToken);
       router.push('/dashboard');
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || 'Registration failed. Try again.';
-      setError('root', { message: msg });
+    } catch {
+      setError('root', { message: 'Registration failed. Try again.' });
     }
   };
 
@@ -124,7 +123,7 @@ export default function RegisterPage() {
             className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm
                        font-medium hover:bg-blue-700 transition-colors
                        disabled:opacity-50 disabled:cursor-not-allowed">
-            {isSubmitting ? 'Creating account…' : 'Create account'}
+            {isSubmitting ? 'Creating account...' : 'Create account'}
           </button>
 
         </form>
