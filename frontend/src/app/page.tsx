@@ -2,80 +2,93 @@ import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-void overflow-hidden relative">
+    <main className="min-h-screen bg-void overflow-hidden">
 
-      {/* Background orbs */}
-      <div className="orb w-[600px] h-[600px] bg-deep/50 top-[-100px] left-[-100px]" />
-      <div className="orb w-[500px] h-[500px] bg-royal/30 bottom-[-50px] right-[-50px]
-                      animate-pulse-slow" />
-      <div className="orb w-[300px] h-[300px] bg-mauve/20 top-[60%] left-[40%]
-                      animate-pulse-slow" style={{ animationDelay: '2s' }} />
+      {/* Ambient blobs */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full
+                        bg-deep/60 blur-[120px]" />
+        <div className="absolute top-1/2 -right-40 w-[500px] h-[500px] rounded-full
+                        bg-royal/40 blur-[100px]" />
+        <div className="absolute -bottom-20 left-1/3 w-[400px] h-[400px] rounded-full
+                        bg-mauve/20 blur-[80px]" />
+      </div>
 
       {/* Hero */}
-      <section className="relative z-10 pt-44 pb-24 px-6">
-        <div className="max-w-5xl mx-auto text-center">
+      <section className="relative pt-36 pb-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
 
-          <div className="inline-flex items-center gap-2.5 glass px-5 py-2.5 rounded-full
-                          mb-10 animate-fade-in shadow-lg shadow-royal/20">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full
-                               bg-mauve opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-mauve" />
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full
+                          border border-royal/40 bg-royal/10 backdrop-blur-sm
+                          mb-8 animate-fade-in">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-mauve opacity-75 animate-ping" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-mauve" />
             </span>
-            <span className="text-blush text-sm font-medium">
+            <span className="text-xs font-semibold text-blush/80 tracking-wide">
               Verify your skills. Land your dream role.
             </span>
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-black text-cream mb-6 leading-none
-                         tracking-tight animate-fade-up">
+          {/* Headline */}
+          <h1 className="text-7xl md:text-8xl font-black tracking-tight leading-[0.9] mb-6
+                         animate-fade-up text-cream">
             Prove what
             <br />
-            <span className="bg-gradient-to-r from-royal via-mauve to-blush
+            <span className="bg-gradient-to-r from-mauve via-blush to-cream
                              bg-clip-text text-transparent">
               you know.
             </span>
           </h1>
 
-          <p className="text-xl text-blush/60 max-w-xl mx-auto mb-12 leading-relaxed
-                        animate-fade-up font-light"
-             style={{ animationDelay: '0.15s' }}>
+          <p className="text-lg text-blush/50 max-w-lg mx-auto mb-10 leading-relaxed font-light
+                        animate-fade-up [animation-delay:100ms]">
             Solve real coding challenges. Earn permanent verifiable badges
-            that employers can check with one click.
+            any employer can check with one click.
           </p>
 
-          <div className="flex gap-4 justify-center flex-wrap animate-fade-up"
-               style={{ animationDelay: '0.25s' }}>
+          <div className="flex items-center justify-center gap-4 flex-wrap
+                          animate-fade-up [animation-delay:200ms]">
             <Link href="/challenges"
-              className="btn-primary text-base px-8 py-3.5 animate-glow">
-              Browse Challenges →
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl
+                         bg-grad-btn text-cream font-semibold text-sm shadow-royal
+                         hover:shadow-mauve hover:-translate-y-0.5
+                         transition-all duration-200 active:translate-y-0">
+              Browse challenges
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5"
+                      strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </Link>
-            <Link href="/register" className="btn-ghost text-base px-8 py-3.5">
-              Create Free Account
+            <Link href="/register"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl
+                         border border-royal/40 text-blush/80 font-semibold text-sm
+                         hover:bg-royal/15 hover:text-cream hover:border-mauve/50
+                         transition-all duration-200">
+              Create free account
             </Link>
           </div>
 
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="relative z-10 px-6 pb-20">
-        <div className="max-w-3xl mx-auto glass rounded-3xl px-10 py-8
-                        animate-fade-up shadow-2xl shadow-royal/20"
-             style={{ animationDelay: '0.35s' }}>
+      {/* Stats bar */}
+      <section className="relative px-6 pb-16 animate-fade-up [animation-delay:300ms]">
+        <div className="max-w-2xl mx-auto rounded-2xl border border-royal/20
+                        bg-deep/30 backdrop-blur-md shadow-inner-royal overflow-hidden">
           <div className="grid grid-cols-3 divide-x divide-royal/20">
             {[
-              { value: '6+',   label: 'Skills to verify',   sub: 'and growing' },
-              { value: '3+',   label: 'Live challenges',    sub: 'across stacks' },
-              { value: '100%', label: 'Free to use',        sub: 'forever' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center px-6">
-                <p className="text-4xl font-black bg-gradient-to-b from-cream to-blush
-                               bg-clip-text text-transparent mb-0.5">
-                  {stat.value}
+              { value: '6+',   label: 'Skills', sub: 'and growing' },
+              { value: '3+',   label: 'Challenges', sub: 'across stacks' },
+              { value: '100%', label: 'Free', sub: 'forever' },
+            ].map((s) => (
+              <div key={s.label} className="py-7 text-center">
+                <p className="text-3xl font-black text-cream mb-0.5">{s.value}</p>
+                <p className="text-xs font-semibold text-blush/70 uppercase tracking-widest">
+                  {s.label}
                 </p>
-                <p className="text-blush/80 text-sm font-medium">{stat.label}</p>
-                <p className="text-blush/30 text-xs">{stat.sub}</p>
+                <p className="text-[11px] text-blush/30 mt-0.5">{s.sub}</p>
               </div>
             ))}
           </div>
@@ -83,59 +96,56 @@ export default function HomePage() {
       </section>
 
       {/* How it works */}
-      <section className="relative z-10 px-6 pb-36">
+      <section className="relative px-6 pb-32">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14 animate-fade-up">
-            <p className="text-mauve text-sm font-semibold uppercase tracking-widest mb-3">
+          <div className="text-center mb-12">
+            <p className="text-xs font-bold text-mauve uppercase tracking-[0.2em] mb-3">
               How it works
             </p>
-            <h2 className="text-4xl font-black text-cream">
+            <h2 className="text-4xl font-black text-cream tracking-tight">
               Three steps to verified
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-5">
             {[
               {
-                num: '01',
-                icon: '🎯',
-                title: 'Pick a challenge',
-                desc: 'Choose from Python, React, C#, SQL and more. Each challenge tests real skills.',
-                delay: '0s',
+                n: '01', icon: '🎯', title: 'Pick a challenge',
+                body: 'Choose from Python, React, C#, SQL and more. Each challenge tests real-world skills.',
+                delay: '0ms',
               },
               {
-                num: '02',
-                icon: '⌨️',
-                title: 'Code in browser',
-                desc: 'Write your solution in our Monaco editor with syntax highlighting and language switching.',
-                delay: '0.12s',
+                n: '02', icon: '⌨️', title: 'Code in your browser',
+                body: 'Write your solution in our Monaco editor with syntax highlighting and instant feedback.',
+                delay: '80ms',
               },
               {
-                num: '03',
-                icon: '🏅',
-                title: 'Earn your badge',
-                desc: 'Pass the challenge and earn a permanent shareable credential with a public verify URL.',
-                delay: '0.24s',
+                n: '03', icon: '🏅', title: 'Earn your badge',
+                body: 'Pass the challenge and earn a permanent shareable credential with a public verify URL.',
+                delay: '160ms',
               },
             ].map((f) => (
-              <div key={f.num}
-                className="card group animate-fade-up relative overflow-hidden"
+              <div key={f.n}
+                className="group relative rounded-2xl border border-royal/20 bg-deep/25
+                           backdrop-blur-sm p-7 overflow-hidden
+                           hover:border-mauve/35 hover:bg-deep/40
+                           hover:-translate-y-1 transition-all duration-300
+                           animate-fade-up"
                 style={{ animationDelay: f.delay }}>
-                <div className="absolute top-0 right-0 text-8xl font-black
-                                text-royal/10 group-hover:text-royal/20
-                                transition-colors duration-500 leading-none pr-4 pt-2
-                                select-none pointer-events-none">
-                  {f.num}
+                <div className="absolute top-4 right-5 text-6xl font-black text-royal/15
+                                group-hover:text-royal/25 transition-colors duration-300 select-none
+                                leading-none">
+                  {f.n}
                 </div>
-                <div className="text-4xl mb-5">{f.icon}</div>
-                <h3 className="font-bold text-cream text-lg mb-2">{f.title}</h3>
-                <p className="text-blush/50 text-sm leading-relaxed">{f.desc}</p>
+                <div className="text-3xl mb-5">{f.icon}</div>
+                <h3 className="font-bold text-cream text-[15px] mb-2 tracking-tight">{f.title}</h3>
+                <p className="text-blush/45 text-sm leading-relaxed">{f.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-    </div>
+    </main>
   );
 }

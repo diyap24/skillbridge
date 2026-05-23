@@ -4,13 +4,6 @@ import Link from 'next/link';
 import api from '@/lib/api';
 import type { Skill } from '@/types';
 
-const CAT: Record<string, string> = {
-  Frontend: 'bg-mauve/20 text-blush border border-mauve/30',
-  Backend:  'bg-royal/25 text-cream border border-royal/40',
-  Database: 'bg-deep/50 text-blush/80 border border-deep/80',
-  DevOps:   'bg-void/70 text-cream border border-mauve/20',
-};
-
 export default function SkillsPage() {
   const { data: skills = [], isLoading } = useQuery<Skill[]>({
     queryKey: ['skills'],
@@ -19,58 +12,58 @@ export default function SkillsPage() {
   const categories = [...new Set(skills.map((s) => s.category))];
 
   return (
-    <div className="min-h-screen bg-void pt-28 pb-20 px-6 relative overflow-hidden">
-      <div className="orb w-80 h-80 bg-deep/40 top-0 left-0" />
-      <div className="orb w-64 h-64 bg-royal/20 bottom-20 right-10" />
+    <div className="min-h-screen bg-void pt-24 pb-20 px-6 relative overflow-hidden">
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-deep/40 blur-[100px] rounded-full -translate-x-1/3 -translate-y-1/3" />
+      </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto">
-
+      <div className="relative max-w-6xl mx-auto">
         <div className="mb-10 animate-fade-up">
-          <p className="text-mauve text-xs font-semibold uppercase tracking-widest mb-2">
+          <p className="text-[11px] font-bold text-mauve uppercase tracking-[0.2em] mb-2">
             All skills
           </p>
-          <h1 className="text-4xl font-black text-cream">Skills</h1>
-          <p className="text-blush/50 mt-1 text-sm">
-            Browse all verifiable skills on SkillBridge
-          </p>
+          <h1 className="text-4xl font-black text-cream tracking-tight mb-1">Skills</h1>
+          <p className="text-blush/40 text-sm">Browse all verifiable skills on SkillBridge</p>
         </div>
 
         {isLoading && (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="shimmer-card h-24" />
+              <div key={i} className="h-20 rounded-2xl bg-deep/20 animate-fade-in" />
             ))}
           </div>
         )}
 
         {categories.map((cat, ci) => (
           <div key={cat} className="mb-10 animate-fade-up"
-               style={{ animationDelay: `${ci * 0.1}s` }}>
+               style={{ animationDelay: `${ci * 80}ms` }}>
             <div className="flex items-center gap-3 mb-4">
-              <span className={`text-xs font-semibold px-3 py-1 rounded-full
-                               ${CAT[cat] ?? 'bg-royal/20 text-cream border border-royal/30'}`}>
+              <span className="text-[11px] font-bold text-blush/50 uppercase tracking-[0.15em]">
                 {cat}
               </span>
               <div className="flex-1 h-px bg-royal/15" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
               {skills.filter((s) => s.category === cat).map((skill, i) => (
-                <Link key={skill.id}
-                  href={`/challenges?skill=${skill.slug}`}
-                  className="card group animate-fade-up"
-                  style={{ animationDelay: `${i * 0.06}s` }}>
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold text-cream text-sm
+                <Link key={skill.id} href={`/challenges?skill=${skill.slug}`}
+                  className="group flex items-center justify-between rounded-xl
+                             border border-royal/20 bg-deep/20 px-5 py-4
+                             hover:border-mauve/35 hover:bg-deep/35 hover:-translate-y-0.5
+                             transition-all duration-200 animate-fade-up"
+                  style={{ animationDelay: `${i * 50}ms` }}>
+                  <div>
+                    <p className="font-semibold text-cream text-sm tracking-tight
                                   group-hover:text-blush transition-colors duration-200">
                       {skill.name}
                     </p>
-                    <span className="text-mauve/50 text-sm opacity-0 group-hover:opacity-100
-                                     translate-x-[-4px] group-hover:translate-x-0
-                                     transition-all duration-300">
-                      →
-                    </span>
+                    <p className="text-[11px] text-blush/30 mt-0.5">{skill.description}</p>
                   </div>
-                  <p className="text-xs text-blush/30 mt-1">{skill.description}</p>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+                    className="text-mauve/30 group-hover:text-mauve/70 -translate-x-1
+                               group-hover:translate-x-0 transition-all duration-200 flex-shrink-0">
+                    <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.5"
+                          strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </Link>
               ))}
             </div>
