@@ -20,97 +20,158 @@ export default function ProfilePage() {
 
   if (!isAuthenticated) return null;
 
+  const avgScore = creds.length
+    ? Math.round(creds.reduce((s,c)=>s+c.scorePercentile,0)/creds.length)
+    : 0;
+  const topSkills = [...new Set(creds.map(c => c.skillName))].slice(0, 5);
+  const joined = user ? new Date().toLocaleDateString('en-US', { month:'short', year:'numeric' }) : '';
+
   return (
-    <div className="min-h-screen bg-void pt-24 pb-20 px-6 relative">
-      <div className="relative max-w-3xl mx-auto">
+    <div className="min-h-screen bg-void pt-28 pb-20 px-6 relative overflow-hidden">
+      {/* Subtle halo */}
+      <div className="pointer-events-none absolute top-0 right-0 w-[500px] h-[400px] rounded-full blur-[100px] opacity-30"
+           style={{ background:'radial-gradient(ellipse, rgba(255,79,0,0.3) 0%, transparent 70%)' }} />
 
-        <div className="mb-8 animate-fade-up">
-          <p className="text-[11px] font-bold text-mauve uppercase tracking-[0.2em] mb-2">Your profile</p>
-          <h1 className="text-4xl font-black text-cream tracking-tight">Profile</h1>
-        </div>
+      <div className="relative max-w-5xl mx-auto">
 
-        {/* Profile card */}
-        <div className="rounded-2xl border border-royal/20 bg-deep/25 backdrop-blur-sm p-8 mb-6 animate-fade-up">
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-royal to-mauve
-                            flex items-center justify-center text-cream text-3xl font-black
-                            shadow-[0_0_30px_rgba(82,43,91,0.5)] flex-shrink-0">
-              {user?.fullName?.[0]?.toUpperCase()}
-            </div>
-            <div>
-              <h2 className="text-2xl font-black text-cream mb-1">{user?.fullName}</h2>
-              <p className="text-blush/50 text-sm">{user?.email}</p>
-              <span className="inline-block mt-2 text-[11px] font-semibold px-3 py-1 rounded-full
-                               bg-royal/20 text-blush/70 border border-royal/30">
-                {user?.role}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6 animate-fade-up [animation-delay:80ms]">
-          {[
-            { label: 'Credentials', value: creds.length },
-            { label: 'Skills', value: new Set(creds.map(c=>c.skillName)).size },
-            { label: 'Avg score', value: creds.length ? Math.round(creds.reduce((s,c)=>s+c.scorePercentile,0)/creds.length)+'%' : '—' },
-          ].map(s => (
-            <div key={s.label} className="rounded-2xl border border-royal/20 bg-deep/25 backdrop-blur-sm p-5 text-center">
-              <p className="text-2xl font-black text-cream mb-1">{s.value}</p>
-              <p className="text-[11px] text-blush/40 font-semibold uppercase tracking-wider">{s.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Badge grid */}
-        <div className="rounded-2xl border border-royal/20 bg-deep/20 backdrop-blur-sm overflow-hidden
-                        animate-fade-up [animation-delay:160ms]">
-          <div className="px-6 py-4 border-b border-royal/15">
-            <h3 className="font-bold text-cream text-[15px]">Earned Badges</h3>
-          </div>
-          {creds.length === 0 ? (
-            <div className="p-12 text-center">
-              <p className="text-blush/30 text-sm mb-4">No badges yet</p>
-              <Link href="/challenges"
-                className="text-xs text-mauve hover:text-blush transition-colors">
-                Take a challenge to earn your first →
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-5">
-              {creds.map((c, i) => (
-                <Link key={c.id} href={`/verify/${c.publicToken}`} target="_blank"
-                  className="group rounded-xl border border-royal/20 bg-deep/30 p-4 text-center
-                             hover:border-mauve/35 hover:-translate-y-1 transition-all duration-200
-                             animate-fade-up"
-                  style={{ animationDelay: `${i*50}ms` }}>
-                  <div className="text-3xl mb-2">🏅</div>
-                  <p className="font-bold text-cream text-sm mb-0.5">{c.skillName}</p>
-                  <p className="text-[10px] text-blush/30">{c.skillCategory}</p>
-                  <div className="mt-2 text-[11px] font-bold text-mauve">{c.scorePercentile}%</div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Settings link */}
-        <div className="mt-4 animate-fade-up [animation-delay:240ms]">
-          <Link href="/settings"
-            className="flex items-center justify-between rounded-2xl border border-royal/20
-                       bg-deep/20 backdrop-blur-sm px-6 py-4 hover:border-mauve/35
-                       hover:bg-deep/35 transition-all duration-200">
-            <div className="flex items-center gap-3">
-              <span className="text-xl">⚙️</span>
+        {/* Header card */}
+        <div className="rounded-2xl border border-royal bg-deep/50 p-8 mb-6 animate-fade-up">
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex items-center gap-6">
+              <div className="w-20 h-20 rounded-2xl bg-grad-btn flex items-center justify-center
+                              text-cream text-2xl font-bold shadow-[0_0_32px_rgba(255,79,0,0.4)]
+                              border-2 border-mauve/40 flex-shrink-0">
+                {user?.fullName?.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
+              </div>
               <div>
-                <p className="font-semibold text-cream text-sm">Account Settings</p>
-                <p className="text-[11px] text-blush/30">Change name, email, password</p>
+                <h1 className="text-2xl font-semibold text-cream mb-0.5">{user?.fullName}</h1>
+                <p className="text-blush/45 text-sm mb-2">{user?.role} · {user?.email}</p>
+                <div className="flex items-center gap-3 text-[12px]">
+                  <span className="text-mauve font-semibold">{creds.length} credentials</span>
+                  <span className="text-blush/25">·</span>
+                  <span className="text-blush/50">{avgScore > 0 ? `${avgScore}% avg score` : 'No scores yet'}</span>
+                  <span className="text-blush/25">·</span>
+                  <span className="text-blush/40">Joined {joined}</span>
+                </div>
               </div>
             </div>
-            <span className="text-blush/30 text-sm">→</span>
-          </Link>
+            <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
+              <button className="px-4 py-2 rounded-xl border border-royal text-blush/50 text-xs font-semibold
+                                 hover:border-mauve/30 hover:text-blush transition-all">
+                Share profile
+              </button>
+              <button className="px-4 py-2 rounded-xl border border-royal text-blush/50 text-xs font-semibold
+                                 hover:border-mauve/30 hover:text-blush transition-all">
+                Download PDF
+              </button>
+              <Link href="/settings"
+                className="px-4 py-2 rounded-xl bg-grad-btn text-cream text-xs font-semibold
+                           shadow-royal shadow-btn-inset hover:shadow-mauve hover:-translate-y-px transition-all">
+                Edit profile
+              </Link>
+            </div>
+          </div>
         </div>
 
+        <div className="grid md:grid-cols-[280px_1fr] gap-6">
+          {/* Left sidebar */}
+          <div className="space-y-4 animate-fade-up [animation-delay:80ms]">
+            <div className="rounded-2xl border border-royal bg-deep/50 p-5">
+              <p className="text-[9px] font-bold text-blush/35 uppercase tracking-widest mb-3">About</p>
+              <p className="text-blush/55 text-sm leading-relaxed">
+                {user?.role === 'Employer'
+                  ? 'Employer account. Post jobs and verify candidate credentials.'
+                  : 'Building skills with verified credentials on SkillBridge.'}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-royal bg-deep/50 p-5">
+              <p className="text-[9px] font-bold text-blush/35 uppercase tracking-widest mb-4">Stats</p>
+              <div className="space-y-3">
+                {[
+                  { label: 'Challenges passed',    value: creds.length,        orange: false },
+                  { label: 'Top-decile finishes',  value: creds.filter(c=>c.scorePercentile>=90).length, orange: true },
+                  { label: 'Skills earned',        value: topSkills.length,    orange: false },
+                ].map(s => (
+                  <div key={s.label} className="flex items-center justify-between">
+                    <span className="text-[12px] text-blush/45">{s.label}</span>
+                    <span className={`text-[13px] font-semibold ${s.orange ? 'text-mauve' : 'text-cream'}`}>
+                      {s.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {topSkills.length > 0 && (
+              <div className="rounded-2xl border border-royal bg-deep/50 p-5">
+                <p className="text-[9px] font-bold text-blush/35 uppercase tracking-widest mb-3">Top skills</p>
+                <div className="flex flex-wrap gap-2">
+                  {topSkills.map((s, i) => (
+                    <span key={s}
+                      className={`text-[12px] font-medium px-3 py-1 rounded-full border transition-colors
+                        ${i === 0
+                          ? 'bg-mauve/15 text-mauve border-mauve/30'
+                          : 'bg-royal/30 text-blush/60 border-royal'}`}>
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Credentials grid */}
+          <div className="animate-fade-up [animation-delay:140ms]">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-cream text-[15px]">Verified credentials</h2>
+              <span className="text-[11px] text-blush/30">Showing {Math.min(creds.length,6)} of {creds.length}</span>
+            </div>
+
+            {creds.length === 0 ? (
+              <div className="rounded-2xl border border-royal bg-deep/40 p-12 text-center">
+                <p className="text-blush/30 text-sm mb-4">No badges yet</p>
+                <Link href="/challenges" className="text-xs text-mauve hover:text-gc-bright transition-colors">
+                  Take a challenge to earn your first →
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {creds.slice(0,5).map((c, i) => (
+                  <Link key={c.id} href={`/verify/${c.publicToken}`} target="_blank"
+                    className="group rounded-2xl border border-royal bg-deep/50 p-5
+                               hover:border-mauve/40 hover:-translate-y-1
+                               hover:shadow-[0_8px_24px_rgba(255,79,0,0.15)]
+                               transition-all duration-200 animate-fade-up"
+                    style={{ animationDelay: `${i*50}ms` }}>
+                    <div className="w-12 h-12 rounded-2xl bg-grad-btn flex items-center justify-center
+                                    text-cream text-sm font-bold shadow-royal mb-3">
+                      {c.scorePercentile}%
+                    </div>
+                    <p className="font-semibold text-cream text-sm mb-0.5">{c.skillName}</p>
+                    <p className="text-[10px] text-blush/35">{c.skillCategory}</p>
+                    <p className="text-[10px] text-blush/25 mt-1">
+                      {new Date(c.issuedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+                    </p>
+                  </Link>
+                ))}
+                {/* Earn next badge */}
+                <Link href="/challenges"
+                  className="group rounded-2xl border border-dashed border-royal bg-deep/20 p-5
+                             hover:border-mauve/30 hover:-translate-y-1 transition-all duration-200
+                             flex flex-col items-center justify-center gap-2 min-h-[140px]">
+                  <div className="w-10 h-10 rounded-full border border-royal/60 flex items-center justify-center
+                                  text-blush/30 group-hover:border-mauve/30 group-hover:text-mauve transition-all text-lg">
+                    +
+                  </div>
+                  <span className="text-[11px] text-blush/30 group-hover:text-blush/60 transition-colors text-center">
+                    Earn next badge
+                  </span>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

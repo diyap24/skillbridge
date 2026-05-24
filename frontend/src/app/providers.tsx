@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: { queries: { staleTime: 60_000, retry: 1 } },
+    defaultOptions: { queries: { staleTime: 30_000, retry: 1, refetchOnWindowFocus: true } },
   }));
 
   return (
@@ -15,16 +15,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
         position="top-right"
         toastOptions={{
           style: {
-            background: '#2B124C',
-            color: '#FBE4D8',
-            border: '1px solid rgba(133,79,108,0.35)',
+            background: '#131316',
+            color: '#C9C9CF',
+            border: '1px solid #26262B',
             borderRadius: '14px',
             fontSize: '13px',
             fontWeight: '500',
             backdropFilter: 'blur(12px)',
           },
-          success: { iconTheme: { primary: '#854F6C', secondary: '#FBE4D8' } },
-          error:   { iconTheme: { primary: '#854F6C', secondary: '#FBE4D8' } },
+          success: { iconTheme: { primary: '#FF4F00', secondary: '#131316' } },
+          error:   { iconTheme: { primary: '#FF4F00', secondary: '#131316' } },
         }}
       />
     </QueryClientProvider>

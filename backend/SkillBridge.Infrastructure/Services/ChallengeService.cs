@@ -98,7 +98,7 @@ public class ChallengeService(
         var execResult = await ExecuteCodeAsync(dto.Code, dto.Language, challenge.TestCasesJson, challenge.TimeLimitSeconds);
 
         var score = execResult.TestCases.Count == 0
-            ? 0
+            ? (execResult.Status.Equals("passed", StringComparison.OrdinalIgnoreCase) ? 100 : 0)
             : (int)(execResult.TestCases.Count(t => t.Passed) * 100.0 / execResult.TestCases.Count);
 
         var submission = new CodeSubmission
@@ -118,14 +118,24 @@ public class ChallengeService(
         await db.SaveChangesAsync();
 
         Guid? credentialId = null;
-        var alreadyHas = await db.Credentials.AnyAsync(
-            c => c.UserId == userId && c.SkillId == challenge.SkillId && !c.IsRevoked);
-
-        if (attempt.Status == AttemptStatus.Passed && !alreadyHas)
+        if (attempt.Status == AttemptStatus.Passed)
         {
             var percentile = Math.Min(100, score + 10);
-            var cred = await credentials.IssueAsync(userId, challenge.SkillId, percentile);
-            credentialId = cred.Id;
+            var existing = await db.Credentials.FirstOrDefaultAsync(
+                c => c.UserId == userId && c.SkillId == challenge.SkillId && !c.IsRevoked);
+
+            if (existing == null)
+            {
+                var cred = await credentials.IssueAsync(userId, challenge.SkillId, percentile);
+                credentialId = cred.Id;
+            }
+            else if (percentile > existing.ScorePercentile)
+            {
+                existing.ScorePercentile = percentile;
+                await db.SaveChangesAsync();
+                credentialId = existing.Id;
+            }
+            // else: credential already exists at same or better score — nothing to do
         }
 
         return new SubmissionResultDto(
@@ -170,23 +180,57 @@ public class ChallengeService(
         var hasErrors = false;
         string? stderr = null;
 
+        // Auto-detect the function name from the first `def` in the submitted code
+        var funcMatch = System.Text.RegularExpressions.Regex.Match(code, @"def\s+(\w+)\s*\(");
+        var funcName  = funcMatch.Success ? funcMatch.Groups[1].Value : "solution";
+
         foreach (var tc in testCases)
         {
             var input    = tc.GetValueOrDefault("input", "");
             var expected = tc.GetValueOrDefault("expected", "");
 
-            // Build a Python runner script that calls the user's function
+            // Encode input as base64 to avoid injection through quotes/escapes
+            var b64Input = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(input));
+
+            // Build a Python runner that calls the detected function.
+            // Handles three input formats from the seeder:
+            //   "1 3 5 7 9 | 5"   → pipe-separated: left part becomes list, right is scalar
+            //   "[1,3,5], 5"       → valid Python tuple expression → unpacked as *args
+            //   "hello"            → plain string fallback
             var runner = $@"
-import sys
+import sys, base64
 
 {code}
 
-# Try to call the function with the input
+def __coerce(s):
+    s = s.strip()
+    try:
+        return eval(s)
+    except Exception:
+        toks = s.split()
+        if toks:
+            try:
+                return [int(t) if t.lstrip('-').lstrip('+').isdigit() else float(t) for t in toks]
+            except (ValueError, AttributeError):
+                pass
+        return s
+
+def __run():
+    _raw = base64.b64decode('{b64Input}').decode('utf-8')
+    if '|' in _raw:
+        _args = [__coerce(p) for p in _raw.split('|')]
+        return {funcName}(*_args)
+    try:
+        _args = eval(f'({{_raw}},)')
+        return {funcName}(*_args)
+    except (NameError, SyntaxError, ValueError):
+        return {funcName}(_raw)
+
 try:
-    result = reverse_string(""{input}"")
+    result = __run()
     print(str(result).strip())
 except Exception as e:
-    print(f""ERROR: {{e}}"", file=sys.stderr)
+    print(f'ERROR: {{e}}', file=sys.stderr)
     sys.exit(1)
 ";
 

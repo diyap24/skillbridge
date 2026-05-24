@@ -1,6 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import QRCode from 'qrcode';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
 interface Cred {
@@ -10,38 +9,16 @@ interface Cred {
 }
 
 export default function VerifyClient({ cred }: { cred: Cred }) {
-  const [qrUrl, setQrUrl]   = useState('');
   const [copied, setCopied] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const [pageUrl, setPageUrl] = useState('');
 
-  useEffect(() => {
-    if (!pageUrl) return;
-    QRCode.toDataURL(pageUrl, {
-      width: 160, margin: 1,
-      color: { dark: '#FBE4D8', light: '#2B124C' },
-    }).then(setQrUrl).catch(console.error);
-  }, [pageUrl]);
+  useEffect(() => { setPageUrl(window.location.href); }, []);
 
-  const copyToken = async () => {
-    await navigator.clipboard.writeText(cred.publicToken);
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(pageUrl);
     setCopied(true);
-    toast.success('Token copied!');
+    toast.success('Link copied!');
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const downloadBadge = async () => {
-    const { default: html2canvas } = await import('html2canvas');
-    if (!cardRef.current) return;
-    toast('Generating badge...', { icon: '⏳' });
-    const canvas = await html2canvas(cardRef.current, {
-      backgroundColor: '#2B124C', scale: 2, useCORS: true,
-    });
-    const link = document.createElement('a');
-    link.download = `skillbridge-${cred.skillName.toLowerCase()}-badge.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    toast.success('Badge downloaded!');
   };
 
   const shareLinkedIn = () => {
@@ -50,139 +27,94 @@ export default function VerifyClient({ cred }: { cred: Cred }) {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}`, '_blank');
   };
 
-  const issued = new Date(cred.issuedAt).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'long', day: 'numeric',
-  });
-
-  const now = new Date();
-  const expiryPercent = cred.expiresAt
-    ? Math.max(5, Math.min(100,
-        (new Date(cred.expiresAt).getTime() - now.getTime()) /
-        (new Date(cred.expiresAt).getTime() - new Date(cred.issuedAt).getTime()) * 100
-      ))
-    : 100;
+  const issued  = new Date(cred.issuedAt).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+  const expires = cred.expiresAt ? new Date(cred.expiresAt).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : 'Never';
 
   return (
-    <div className="min-h-screen bg-void flex items-center justify-center px-4 py-20 relative overflow-hidden">
+    <div className="min-h-screen bg-void flex flex-col items-center justify-center px-4 py-20 relative overflow-hidden">
+      {/* Orange radial glow from bottom */}
       <div className="pointer-events-none fixed inset-0">
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-deep/50 blur-[120px] rounded-full -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-royal/30 blur-[100px] rounded-full translate-x-1/3 translate-y-1/3" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px]
+                        rounded-full blur-[80px]"
+             style={{ background: 'radial-gradient(ellipse at center, rgba(255,79,0,0.45) 0%, rgba(255,79,0,0.1) 55%, transparent 75%)' }} />
       </div>
 
-      <div className="relative w-full max-w-md animate-fade-up">
+      {/* Verified chip */}
+      <div className="relative z-10 inline-flex items-center gap-2 px-4 py-2 rounded-full
+                      border border-mauve/40 bg-mauve/10 mb-8 animate-fade-in">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <circle cx="6.5" cy="6.5" r="6" stroke="#FF4F00" strokeWidth="1.2"/>
+          <path d="M4 6.5l1.8 1.8L9 4.5" stroke="#FF4F00" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <span className="text-[11px] font-bold text-mauve uppercase tracking-[0.15em]">
+          Verified credential
+        </span>
+      </div>
 
-        {/* Badge card */}
-        <div ref={cardRef}
-          className="rounded-3xl border border-royal/25 bg-deep/40 backdrop-blur-md p-10
-                     shadow-2xl shadow-void/60 text-center mb-4">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-royal to-mauve
-                          flex items-center justify-center mx-auto mb-5 text-5xl
-                          shadow-[0_0_40px_rgba(133,79,108,0.4)] animate-float">
-            🏅
-          </div>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full
-                          border border-royal/30 bg-royal/15 mb-6">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-mauve opacity-75 animate-ping" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-mauve" />
-            </span>
-            <span className="text-[11px] font-bold text-blush/80 uppercase tracking-[0.15em]">
-              Verified credential
-            </span>
-          </div>
-          <h1 className="text-3xl font-black text-cream tracking-tight mb-1">{cred.skillName}</h1>
-          <p className="text-blush/40 text-sm mb-8">{cred.skillCategory}</p>
+      {/* Main card */}
+      <div className="relative z-10 w-full max-w-sm animate-fade-up">
+        <div className="rounded-3xl border border-royal/60 bg-deep/80 backdrop-blur-md overflow-hidden
+                        shadow-[0_24px_80px_rgba(0,0,0,0.6)]">
 
-          <div className="space-y-3 border-t border-royal/15 pt-7 text-left">
+          {/* Orange badge circle */}
+          <div className="flex justify-center pt-10 pb-6">
+            <div className="w-28 h-28 rounded-full flex flex-col items-center justify-center
+                            shadow-[0_0_40px_rgba(255,79,0,0.5)]"
+                 style={{ background: 'linear-gradient(160deg, #FF6A1F 0%, #D63A00 100%)' }}>
+              <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Verified</span>
+              <span className="text-3xl font-bold text-white leading-tight">{cred.scorePercentile}%</span>
+              <span className="text-[11px] font-semibold text-white/80 uppercase tracking-wide">
+                {cred.skillName.toUpperCase().slice(0,8)}
+              </span>
+            </div>
+          </div>
+
+          {/* Name & context */}
+          <div className="text-center px-8 pb-6">
+            <p className="text-[10px] font-bold text-blush/35 uppercase tracking-widest mb-2">Awarded to</p>
+            <h1 className="text-2xl font-semibold text-cream mb-1">{cred.candidateName}</h1>
+            <p className="text-blush/40 text-sm">
+              for passing <span className="text-blush/65 font-medium">{cred.skillName}</span>
+            </p>
+          </div>
+
+          {/* Metadata 2×2 grid */}
+          <div className="grid grid-cols-2 gap-px bg-royal/40 border-t border-royal/40">
             {[
-              { label: 'Awarded to',       value: cred.candidateName },
-              { label: 'Score percentile', value: `${cred.scorePercentile}%` },
-              { label: 'Issued on',        value: issued },
-              { label: 'Expires', value: cred.expiresAt ? new Date(cred.expiresAt).toLocaleDateString() : 'Never' },
+              { label: 'Issued',   value: issued  },
+              { label: 'Expires',  value: expires },
+              { label: 'Score',    value: `${cred.scorePercentile}%` },
+              { label: 'Token',    value: cred.publicToken.slice(0,12)+'…' },
             ].map(({ label, value }) => (
-              <div key={label} className="flex items-center justify-between py-2.5 border-b border-royal/10 last:border-0">
-                <p className="text-[10px] font-semibold text-blush/30 uppercase tracking-widest">{label}</p>
-                <p className="font-bold text-cream text-sm">{value}</p>
+              <div key={label} className="bg-deep/60 px-4 py-4">
+                <p className="text-[9px] font-bold text-blush/30 uppercase tracking-widest mb-1">{label}</p>
+                <p className="text-[13px] font-semibold text-cream font-mono">{value}</p>
               </div>
             ))}
           </div>
 
-          {/* Expiry progress bar */}
-          {cred.expiresAt && (
-            <div className="mt-5">
-              <div className="flex justify-between text-[10px] text-blush/30 mb-1.5">
-                <span>Validity</span>
-                <span>{Math.round(expiryPercent)}% remaining</span>
-              </div>
-              <div className="h-1 bg-royal/20 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-royal to-mauve rounded-full transition-all duration-1000"
-                     style={{ width: `${expiryPercent}%` }} />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Token with copy */}
-        <div className="rounded-2xl border border-royal/20 bg-deep/30 backdrop-blur-sm p-4 mb-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-[10px] font-semibold text-blush/30 uppercase tracking-widest">
-              Credential token
-            </p>
-            <button onClick={copyToken}
-              className="text-xs font-semibold text-mauve hover:text-blush transition-colors flex items-center gap-1">
-              {copied ? '✓ Copied!' : 'Copy'}
+          {/* CTA button */}
+          <div className="p-5">
+            <button onClick={shareLinkedIn}
+              className="w-full py-3.5 rounded-xl bg-grad-btn text-cream font-semibold text-sm
+                         shadow-royal shadow-btn-inset hover:shadow-mauve hover:-translate-y-px
+                         transition-all duration-200 active:translate-y-0">
+              Share on LinkedIn ↗
             </button>
           </div>
-          <p className="font-mono text-[11px] text-blush/50 break-all">{cred.publicToken}</p>
         </div>
 
-        {/* QR Code */}
-        {qrUrl && (
-          <div className="rounded-2xl border border-royal/20 bg-deep/30 backdrop-blur-sm p-5 mb-4 flex items-center gap-5">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={qrUrl} alt="QR code" className="w-20 h-20 rounded-xl flex-shrink-0" />
-            <div>
-              <p className="text-[11px] font-bold text-blush/50 uppercase tracking-widest mb-1">
-                Scan to verify
-              </p>
-              <p className="text-xs text-blush/30 leading-relaxed">
-                Share this QR code so anyone can verify your credential instantly.
-              </p>
-            </div>
-          </div>
-        )}
+        {/* Copy link */}
+        <button onClick={copyLink}
+          className="mt-3 w-full py-3 rounded-xl border border-royal text-blush/40
+                     text-xs font-semibold hover:border-mauve/30 hover:text-blush
+                     transition-all duration-200">
+          {copied ? '✓ Link copied!' : 'Copy verify link'}
+        </button>
 
-        {/* Action buttons */}
-        <div className="grid grid-cols-3 gap-3">
-          <button onClick={downloadBadge}
-            className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl
-                       border border-royal/20 bg-deep/20 hover:border-mauve/35
-                       hover:bg-deep/40 transition-all duration-200 group">
-            <span className="text-xl">⬇️</span>
-            <span className="text-[10px] font-semibold text-blush/40 group-hover:text-blush/70 transition-colors">
-              Download PNG
-            </span>
-          </button>
-          <button onClick={shareLinkedIn}
-            className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl
-                       border border-royal/20 bg-deep/20 hover:border-mauve/35
-                       hover:bg-deep/40 transition-all duration-200 group">
-            <span className="text-xl">💼</span>
-            <span className="text-[10px] font-semibold text-blush/40 group-hover:text-blush/70 transition-colors">
-              Share LinkedIn
-            </span>
-          </button>
-          <button onClick={copyToken}
-            className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl
-                       border border-royal/20 bg-deep/20 hover:border-mauve/35
-                       hover:bg-deep/40 transition-all duration-200 group">
-            <span className="text-xl">{copied ? '✅' : '🔗'}</span>
-            <span className="text-[10px] font-semibold text-blush/40 group-hover:text-blush/70 transition-colors">
-              {copied ? 'Copied!' : 'Copy Link'}
-            </span>
-          </button>
-        </div>
-
+        <p className="text-center text-[11px] text-blush/20 mt-4">
+          Issued by SkillBridge · {pageUrl}
+        </p>
       </div>
     </div>
   );
