@@ -14,11 +14,8 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-
         var result = await authService.RegisterAsync(dto);
-        if (result == null)
-            return Conflict(new { message = "Email already registered" });
-
+        if (result == null) return Conflict(new { message = "Email already registered" });
         return CreatedAtAction(nameof(Register), result);
     }
 
@@ -26,9 +23,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
         var result = await authService.LoginAsync(dto);
-        if (result == null)
-            return Unauthorized(new { message = "Invalid email or password" });
-
+        if (result == null) return Unauthorized(new { message = "Invalid email or password" });
         return Ok(result);
     }
 
@@ -36,9 +31,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> Refresh([FromBody] RefreshDto dto)
     {
         var result = await authService.RefreshAsync(dto.RefreshToken);
-        if (result == null)
-            return Unauthorized(new { message = "Refresh token expired or invalid" });
-
+        if (result == null) return Unauthorized(new { message = "Refresh token expired or invalid" });
         return Ok(result);
     }
 
@@ -54,10 +47,24 @@ public class AuthController(IAuthService authService) : ControllerBase
     [Authorize]
     public IActionResult Me()
     {
-        return Ok(new
-        {
-            id    = User.GetUserId(),
-            role  = User.GetUserRole(),
-        });
+        return Ok(new { id = User.GetUserId(), role = User.GetUserRole() });
+    }
+
+    [HttpPut("me")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+    {
+        var result = await authService.UpdateProfileAsync(User.GetUserId(), dto);
+        if (result == null) return NotFound();
+        return Ok(result);
+    }
+
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        var success = await authService.ChangePasswordAsync(User.GetUserId(), dto);
+        if (!success) return BadRequest(new { message = "Current password is incorrect" });
+        return Ok(new { message = "Password updated successfully" });
     }
 }

@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import { NavbarWrapper } from '@/components/NavbarWrapper';
-import { MeshBackground } from '@/components/MeshBackground';
+// 
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={inter.className} style={{ background: '#190019' }}>
         <Providers>
-          <MeshBackground />
+          <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "radial-gradient(ellipse at 20% 20%, rgba(82,43,91,0.3) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(43,18,76,0.4) 0%, transparent 60%), #190019", pointerEvents: "none" }} />
           <NavbarWrapper />
           <div style={{ position: 'relative', zIndex: 1 }}>
             {children}

@@ -28,3 +28,6 @@ public record UserDto(
     string Email,
     string Role
 );
+public record UpdateProfileDto(string FullName);
+public record ChangePasswordDto(string CurrentPassword, string NewPassword);
+

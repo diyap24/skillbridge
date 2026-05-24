@@ -77,6 +77,30 @@ public class AuthService(
     }
 
     // ── Private helper ────────────────────────────────────────────────────────
+
+    public async Task<UserDto?> UpdateProfileAsync(Guid userId, UpdateProfileDto dto)
+    {
+        var user = await db.Users.FindAsync(userId);
+        if (user == null) return null;
+        user.FullName   = dto.FullName.Trim();
+        user.UpdatedAt  = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+        return new UserDto(user.Id, user.FullName, user.Email, user.Role.ToString());
+    }
+
+    public async Task<bool> ChangePasswordAsync(Guid userId, ChangePasswordDto dto)
+    {
+        var user = await db.Users.FindAsync(userId);
+        if (user == null) return false;
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        user.UpdatedAt    = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+        return true;
+    }
+
+
+
+
     private async Task<AuthResponseDto> BuildResponseAsync(User user)
     {
         var accessToken  = tokenService.GenerateAccessToken(user);
@@ -98,4 +122,4 @@ public class AuthService(
             new UserDto(user.Id, user.FullName, user.Email, user.Role.ToString())
         );
     }
-}
+}// Add these methods to the AuthService class — paste inside the class before the last }
