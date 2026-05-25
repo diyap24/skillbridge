@@ -1,8 +1,126 @@
+'use client';
 import Link from 'next/link';
+import { useState } from 'react';
+
+function DemoModal({ onClose }: { onClose: () => void }) {
+  const steps = [
+    {
+      n: '01', title: 'Pick a challenge',
+      desc: 'Browse 50+ challenges across Python, TypeScript, React, C#, and more — filtered by skill and difficulty.',
+      icon: (
+        <svg width="22" height="22" fill="none" viewBox="0 0 22 22">
+          <rect x="2" y="2" width="18" height="18" rx="4" stroke="#FF4F00" strokeWidth="1.5"/>
+          <path d="M7 11h8M7 7h5M7 15h3" stroke="#FF4F00" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
+      n: '02', title: 'Solve it live',
+      desc: 'Write real code in Monaco editor with JetBrains Mono. Python runs against actual test cases; other languages are evaluated instantly.',
+      icon: (
+        <svg width="22" height="22" fill="none" viewBox="0 0 22 22">
+          <path d="M8 7l-4 4 4 4M14 7l4 4-4 4" stroke="#FF4F00" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M12 5l-2 12" stroke="#FF4F00" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
+      n: '03', title: 'Earn a credential',
+      desc: 'Pass the score threshold and a verifiable credential is issued instantly — tied to your skill, score, and timestamp.',
+      icon: (
+        <svg width="22" height="22" fill="none" viewBox="0 0 22 22">
+          <circle cx="11" cy="9" r="5" stroke="#FF4F00" strokeWidth="1.5"/>
+          <path d="M7 14l-2 7 6-3 6 3-2-7" stroke="#FF4F00" strokeWidth="1.5" strokeLinejoin="round"/>
+          <path d="M8.5 9l1.5 1.5 3-3" stroke="#FF4F00" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
+    {
+      n: '04', title: 'Share with employers',
+      desc: 'Every badge has a unique public URL. Employers verify in one click — no login, no friction, tamper-proof.',
+      icon: (
+        <svg width="22" height="22" fill="none" viewBox="0 0 22 22">
+          <circle cx="17" cy="5" r="2.5" stroke="#FF4F00" strokeWidth="1.5"/>
+          <circle cx="5"  cy="11" r="2.5" stroke="#FF4F00" strokeWidth="1.5"/>
+          <circle cx="17" cy="17" r="2.5" stroke="#FF4F00" strokeWidth="1.5"/>
+          <path d="M7.5 9.5l7-3M7.5 12.5l7 3" stroke="#FF4F00" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+         onClick={onClose}>
+      <div className="absolute inset-0 bg-void/80 backdrop-blur-md" />
+      <div className="relative w-full max-w-2xl bg-deep border border-royal rounded-3xl
+                      shadow-[0_32px_80px_rgba(0,0,0,0.7)] overflow-hidden animate-fade-up"
+           onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
+        <div className="px-8 pt-8 pb-6 border-b border-royal">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mauve/15
+                              border border-mauve/25 mb-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-mauve" />
+                <span className="text-[10px] font-bold text-mauve uppercase tracking-widest">Product tour</span>
+              </div>
+              <h2 className="text-[22px] font-bold text-cream tracking-tight">How SkillBridge works</h2>
+              <p className="text-blush/40 text-sm mt-1">Four steps from code to verified credential</p>
+            </div>
+            <button onClick={onClose}
+              className="w-8 h-8 rounded-full border border-royal flex items-center justify-center
+                         text-blush/40 hover:text-cream hover:border-mauve/40 transition-all mt-1">
+              <svg width="12" height="12" fill="none" viewBox="0 0 12 12">
+                <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div className="p-8 grid grid-cols-2 gap-5">
+          {steps.map((s) => (
+            <div key={s.n}
+              className="rounded-2xl border border-royal bg-void/40 p-5
+                         hover:border-mauve/30 transition-colors duration-200">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-mauve/10 border border-mauve/20
+                                flex items-center justify-center flex-shrink-0">
+                  {s.icon}
+                </div>
+                <span className="text-[10px] font-bold text-mauve/50 mt-2 tracking-widest">{s.n}</span>
+              </div>
+              <p className="font-semibold text-cream text-[14px] mb-1.5">{s.title}</p>
+              <p className="text-blush/40 text-[12px] leading-relaxed">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer CTA */}
+        <div className="px-8 pb-8 flex items-center gap-3">
+          <Link href="/register" onClick={onClose}
+            className="flex-1 py-3 rounded-xl bg-grad-btn text-cream font-semibold text-sm text-center
+                       shadow-royal shadow-btn-inset hover:shadow-mauve hover:-translate-y-px transition-all">
+            Create free account →
+          </Link>
+          <Link href="/challenges" onClick={onClose}
+            className="flex-1 py-3 rounded-xl border border-royal text-blush/60 font-semibold text-sm text-center
+                       hover:border-mauve/30 hover:text-cream transition-all">
+            Browse challenges
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
+  const [demoOpen, setDemoOpen] = useState(false);
   return (
     <main className="min-h-screen bg-void overflow-hidden">
+      {demoOpen && <DemoModal onClose={() => setDemoOpen(false)} />}
 
       {/* Hero */}
       <section className="relative pt-40 pb-10 px-6 text-center overflow-hidden">
@@ -47,13 +165,13 @@ export default function HomePage() {
                       strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </Link>
-            <Link href="/register"
+            <button onClick={() => setDemoOpen(true)}
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full
                          border border-royal/60 text-blush/70 font-semibold text-[14px]
                          hover:bg-royal/30 hover:text-cream hover:border-mauve/20
                          transition-all duration-200">
               Watch demo
-            </Link>
+            </button>
           </div>
 
           {/* Hex language orbit */}

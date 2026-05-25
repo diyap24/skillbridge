@@ -106,6 +106,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await DbSeeder.SeedAsync(db);
+    await DbSeeder.SeedJobsAsync(db);
 }
 
 if (app.Environment.IsDevelopment())

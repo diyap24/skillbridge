@@ -364,4 +364,123 @@ public static class DbSeeder
         Console.WriteLine("  Pass:  Admin@123");
         Console.WriteLine("========================================");
     }
+
+    public static async Task SeedJobsAsync(AppDbContext db)
+    {
+        if (await db.JobPostings.AnyAsync()) return;
+
+        var employer = await db.Users.FirstOrDefaultAsync(u => u.Email == "admin@skillbridge.dev");
+        if (employer == null) return;
+
+        var now = DateTime.UtcNow;
+
+        var jobs = new List<JobPosting>
+        {
+            new()
+            {
+                EmployerId = employer.Id,
+                Title = "Senior Frontend Engineer",
+                Company = "Vercel",
+                Location = "Remote · USA",
+                Description = "Join Vercel's product team to build the next generation of developer tooling. You'll work on high-impact features used by millions of developers, owning everything from design to deployment. Strong React and TypeScript skills are essential.",
+                RequiredSkillsJson = """["React","TypeScript"]""",
+                PostedAt = now.AddDays(-1),
+            },
+            new()
+            {
+                EmployerId = employer.Id,
+                Title = "Full-Stack Engineer",
+                Company = "Stripe",
+                Location = "Remote · Europe",
+                Description = "Stripe is looking for a full-stack engineer to help build financial infrastructure for the internet. You'll work across the stack — from React dashboards to Python backend services — and ship features that handle billions in transactions.",
+                RequiredSkillsJson = """["Python","React","TypeScript"]""",
+                PostedAt = now.AddDays(-2),
+            },
+            new()
+            {
+                EmployerId = employer.Id,
+                Title = ".NET Backend Engineer",
+                Company = "Atlassian",
+                Location = "Sydney · AU / Remote",
+                Description = "Build scalable backend services powering Jira, Confluence, and Trello. You'll design APIs, work on high-availability systems, and mentor junior engineers. Deep C# and SQL experience required.",
+                RequiredSkillsJson = """["C#","SQL"]""",
+                PostedAt = now.AddDays(-3),
+            },
+            new()
+            {
+                EmployerId = employer.Id,
+                Title = "Machine Learning Engineer",
+                Company = "Hugging Face",
+                Location = "Remote · Worldwide",
+                Description = "Work at the frontier of open-source AI. You'll build training pipelines, optimize inference, and contribute to open-source libraries used by hundreds of thousands of researchers. Strong Python skills and ML fundamentals are a must.",
+                RequiredSkillsJson = """["Python"]""",
+                PostedAt = now.AddDays(-4),
+            },
+            new()
+            {
+                EmployerId = employer.Id,
+                Title = "Platform Engineer — DevOps",
+                Company = "Datadog",
+                Location = "New York · Hybrid",
+                Description = "Own Datadog's internal platform infrastructure. You'll design and operate container orchestration systems, improve CI/CD pipelines, and ensure reliability at massive scale. Docker and Kubernetes expertise is essential.",
+                RequiredSkillsJson = """["Docker"]""",
+                PostedAt = now.AddDays(-5),
+            },
+            new()
+            {
+                EmployerId = employer.Id,
+                Title = "React Native Engineer",
+                Company = "Linear",
+                Location = "Remote · USA / EU",
+                Description = "Linear is building the future of project management. As a React Native engineer you'll shape our mobile apps — crafting fast, polished UIs that developers love. You'll work closely with design and ship frequently.",
+                RequiredSkillsJson = """["React","TypeScript"]""",
+                PostedAt = now.AddDays(-6),
+            },
+            new()
+            {
+                EmployerId = employer.Id,
+                Title = "Data Engineer",
+                Company = "Snowflake",
+                Location = "Remote · USA",
+                Description = "Design and maintain data pipelines that power analytics at global scale. You'll model complex schemas, write performance-critical SQL, and collaborate with data science and product teams to deliver insights that drive decisions.",
+                RequiredSkillsJson = """["SQL","Python"]""",
+                PostedAt = now.AddDays(-7),
+            },
+            new()
+            {
+                EmployerId = employer.Id,
+                Title = "TypeScript SDK Engineer",
+                Company = "Anthropic",
+                Location = "Remote · Worldwide",
+                Description = "Build and maintain developer-facing SDKs and tooling for Claude APIs. You'll write TypeScript that developers depend on daily, maintain excellent documentation, and drive adoption across the ecosystem.",
+                RequiredSkillsJson = """["TypeScript"]""",
+                PostedAt = now.AddDays(-8),
+            },
+            new()
+            {
+                EmployerId = employer.Id,
+                Title = "Backend Engineer — Payments",
+                Company = "Wise",
+                Location = "London · Hybrid",
+                Description = "Build the backend systems that move money for millions of customers across 80+ countries. You'll work on mission-critical C# microservices, design fault-tolerant distributed systems, and ensure correctness at every layer.",
+                RequiredSkillsJson = """["C#","SQL"]""",
+                PostedAt = now.AddDays(-10),
+            },
+            new()
+            {
+                EmployerId = employer.Id,
+                Title = "Frontend Engineer — Design Systems",
+                Company = "Figma",
+                Location = "Remote · USA",
+                Description = "Build and evolve Figma's design system used by thousands of designers and engineers. You'll create accessible React components, write comprehensive tests, and set the standard for UI quality across the company.",
+                RequiredSkillsJson = """["React","TypeScript"]""",
+                PostedAt = now.AddDays(-12),
+            },
+        };
+
+        db.JobPostings.AddRange(jobs);
+        await db.SaveChangesAsync();
+
+        Console.WriteLine($"  {jobs.Count} job postings seeded.");
+    }
 }

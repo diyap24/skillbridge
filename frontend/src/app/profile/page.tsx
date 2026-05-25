@@ -1,10 +1,11 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth.store';
 import api from '@/lib/api';
+import toast from 'react-hot-toast';
 import type { Credential } from '@/types';
 
 export default function ProfilePage() {
@@ -18,6 +19,11 @@ export default function ProfilePage() {
     enabled: isAuthenticated,
   });
 
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  useEffect(() => {
+    setAvatarUrl(localStorage.getItem('sb_avatar'));
+  }, []);
+
   if (!isAuthenticated) return null;
 
   const avgScore = creds.length
@@ -25,6 +31,20 @@ export default function ProfilePage() {
     : 0;
   const topSkills = [...new Set(creds.map(c => c.skillName))].slice(0, 5);
   const joined = user ? new Date().toLocaleDateString('en-US', { month:'short', year:'numeric' }) : '';
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      await navigator.share({ title: `${user?.fullName} — SkillBridge Profile`, url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success('Profile link copied to clipboard!');
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    window.print();
+  };
 
   return (
     <div className="min-h-screen bg-void pt-28 pb-20 px-6 relative overflow-hidden">
@@ -40,8 +60,10 @@ export default function ProfilePage() {
             <div className="flex items-center gap-6">
               <div className="w-20 h-20 rounded-2xl bg-grad-btn flex items-center justify-center
                               text-cream text-2xl font-bold shadow-[0_0_32px_rgba(255,79,0,0.4)]
-                              border-2 border-mauve/40 flex-shrink-0">
-                {user?.fullName?.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
+                              border-2 border-mauve/40 flex-shrink-0 overflow-hidden">
+                {avatarUrl
+                  ? <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                  : user?.fullName?.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
               </div>
               <div>
                 <h1 className="text-2xl font-semibold text-cream mb-0.5">{user?.fullName}</h1>
@@ -56,12 +78,14 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
-              <button className="px-4 py-2 rounded-xl border border-royal text-blush/50 text-xs font-semibold
-                                 hover:border-mauve/30 hover:text-blush transition-all">
+              <button onClick={handleShare}
+                className="px-4 py-2 rounded-xl border border-royal text-blush/50 text-xs font-semibold
+                           hover:border-mauve/30 hover:text-blush transition-all">
                 Share profile
               </button>
-              <button className="px-4 py-2 rounded-xl border border-royal text-blush/50 text-xs font-semibold
-                                 hover:border-mauve/30 hover:text-blush transition-all">
+              <button onClick={handleDownloadPDF}
+                className="px-4 py-2 rounded-xl border border-royal text-blush/50 text-xs font-semibold
+                           hover:border-mauve/30 hover:text-blush transition-all">
                 Download PDF
               </button>
               <Link href="/settings"
