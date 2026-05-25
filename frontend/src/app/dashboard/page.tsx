@@ -150,7 +150,7 @@ export default function DashboardPage() {
                     <YAxis type="category" dataKey="subject" tick={{ fill:'#C9C9CF', fontSize:11, opacity:0.6 }} width={72} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={{ background:'#131316', border:'1px solid #26262B', borderRadius:'10px', fontSize:'12px', color:'#FFF' }}
                              cursor={{ fill:'rgba(255,79,0,0.06)' }}
-                             formatter={(v: number) => [`${Math.round(v * 20)}%`, 'Score']} />
+                             formatter={(v) => [`${Math.round((v as number) * 20)}%`, 'Score']} />
                     <Bar dataKey="value" fill="#FF4F00" fillOpacity={0.85} radius={[0, 4, 4, 0]} barSize={18} />
                   </BarChart>
                 </ResponsiveContainer>
